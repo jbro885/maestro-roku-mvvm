@@ -1,6 +1,6 @@
 {
   "name": "maestro-roku-mvvm",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "A development platform for building roku channels in brighterscript. MVVM Library",
   "directories": {
     "doc": "docs"
@@ -9,7 +9,7 @@
     "dist/**/!(manifest)*"
   ],
   "dependencies": {
-    "log": "maestro-roku-log"
+    "log": "npm:maestro-roku-log@latest"
   },
   "devDependencies": {
     "brighterscript": "^0.15.0",
