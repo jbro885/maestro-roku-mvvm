@@ -1,6 +1,6 @@
 {
   "name": "maestro-roku-mvvm",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A development platform for building roku channels in brighterscript. MVVM Library",
   "directories": {
     "doc": "docs"
