@@ -1,0 +1,235 @@
+import "pkg:/source/roku_modules/log/LogMixin.brs"
+import "pkg:/source/roku_modules/mc/Utils.brs"
+import "pkg:/source/roku_modules/mc/Tasks.brs"
+import "BaseObservable.bs"
+
+' /**
+'  * @module BaseViewModel
+'  * @description Base class for all ViewModels
+'  */
+class BaseViewModel extends BaseObservable
+
+  ' /**
+  '  * @member new
+  '  * @memberof module:BaseViewModel
+  '  * @instance
+  '  * @function
+  '  * @description contsructor for a view model.
+  '  *              this class contains the common functions to assist in vm management
+  '  *               - KeyMixin integration points
+  '  *               - FocusMixin integration points
+  '  *               - wrappers for key navigation methods
+  '  * @param {string} name to use in logs, etc
+  '  */
+
+  public function new(name = "BaseViewModel")
+    super()
+    m.name = name
+    registerLogger(name, true, m)
+  end function
+
+  public state = "none"
+  public focusId = invalid
+  public name = ""
+  public isFocused = false
+  public isShown = false
+
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ public API
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  override function initialize()
+    m.logMethod("initialize", m.name)
+    m.state = "initialized"
+  end function
+
+  override function destroy()
+    super.destroy()
+    m.logMethod("destroy")
+    m.state = "destroyed"
+  end function
+
+  public function onShow()
+    m.isShown = true
+  end function
+
+  public function onHide()
+    m.isShown = false
+  end function
+
+  public function onGainedFocus(isSelfFocused)
+    if isSelfFocused
+      m.isFocused = true
+      m.setFocusId(m.focusId)
+    end if
+  end function
+
+  public function onLostFocus()
+    m.isFocused = false
+  end function
+
+  public function setFocusId(id)
+    if m.isFocused
+      m.setField("focusId", id)
+    else
+      m.focusId = id
+    end if
+  end function
+
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ KEY HANDLING
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  public function onKeyEvent(key as string, press as boolean) as boolean
+    result = false
+    if press
+      if mc_isFunction(m.isAnyKeyPressLocked) and m.isAnyKeyPressLocked()
+        return true
+      end if
+
+      if key = "down" and mc_isFunction(m.onKeyPressDown)
+        result = m.onKeyPressDown()
+      else if key = "up" and mc_isFunction(m.onKeyPressUp)
+        result = m.onKeyPressUp()
+      else if key = "left" and mc_isFunction(m.onKeyPressLeft)
+        result = m.onKeyPressLeft()
+      else if key = "right" and mc_isFunction(m.onKeyPressRight)
+        result = m.onKeyPressRight()
+      else if key = "OK" and mc_isFunction(m.onKeyPressOK)
+        result = m.onKeyPressOK()
+      else if key = "back" and mc_isFunction(m.onKeyPressBack)
+        result = m.onKeyPressBack()
+      else if key = "options" and mc_isFunction(m.onKeyPressOption)
+        result = m.onKeyPressOption()
+      else if key = "play" and mc_isFunction(m.onKeyPressPlay)
+        result = m.onKeyPressPlay()
+      end if
+    else
+      result = false
+    end if
+
+    if (result = invalid)
+      result = false
+    end if
+
+    if result = false and mc_isFunction(m.isCapturingAnyKeyPress)
+      result = m.isCapturingAnyKeyPress(key, press)
+    end if
+
+    return result
+  end function
+
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ scope support
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  function getTopField(fieldName)
+    return getMField("top")[fieldName]
+  end function
+
+  function getMField(fieldName)
+    return mc_getMField(fieldName)
+  end function
+
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ nav support
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  'Note the following methods are proxies to facilitate testing.
+  'All of them will call out to the top level scope
+
+  ' /**
+  '  * @member push
+  '  * @memberof module:BaseViewModel
+  '  * @instance
+  '  * @function
+  '  * @description wrapper for push
+  '  * @param {view} the view to push, if this is a string, then it is looked up on m - so you can push views by their id, as well as actual views
+  '  */
+  public function push(view)
+
+    if mc_isString(view)
+      view = MVMM.findViewWithId(view)
+    end if
+
+    push(view)
+  end function
+
+  public function pop() as object
+    return(pop())
+  end function
+
+  public function getViewById(id)
+    view = mc.getMField(id)
+
+    if view = invalid
+      m.logError("could not find view with name ", id)
+    end if
+
+    return view
+  end function
+
+  public function resetNavControllerToRoot()
+    resetNavControllerToRoot()
+  end function
+
+  public function resetNavController(newFirstScreen = invalid, endIndex = -1)
+    resetNavController(newFirstScreen, endIndex)
+  end function
+
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ task wrappers, for easy stubbing
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  function observeNodeField(node, fieldName, callback, sendMode = "value", once = false)
+    mc_Tasks_observeNodeField(node, fieldName, callback, sendMode, once, m)
+  end function
+
+  function waitAFrame(callback, duration = 0.01, sendMode = "none")
+    mc_Tasks_waitAFrame(callback, duration, sendMode, m)
+  end function
+
+  function cancelWaitTimer(timer)
+    mc_Tasks_cancelWaitTimer(timer)
+  end function
+
+  function createTask(taskType, fields, callback = invalid, isRunning = true, fieldName = "output", sendMode = "result")
+    mc_Tasks_createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
+  end function
+
+end class
+
+'+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+'++ helpers
+'+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function onFocusIdChange(focusId)
+  m.logVerbose("onFocusIdChange", focusId, m.top.isShown)
+
+  if focusId <> invalid and focusId <> "" and m.top.isShown
+    control = m[focusId]
+
+    if control <> invalid
+      m.logVerbose("setting focus on ", control)
+      'bs:disable-next-line
+      mv_setFocus(control)
+    else
+      m.logError("the focus map contained a focusId that did not exist!", focusId)
+    end if
+
+  end if
+end function
+
+
+function initializeBindings()
+  if mc_isFunction(m_initBindings)
+    'bs:disable-next-line
+    m_initBindings()
+  end if
+
+  if mc_isFunction(M_initStaticBindings)
+    'bs:disable-next-line
+    M_initStaticBindings()
+  end if
+
+  m.vm.observeField("focusId", onFocusIdChange,)
+end function

@@ -10,11 +10,13 @@
     "!roku_modules"
   ],
   "dependencies": {
-    "log": "file:../roku-log"
+    "log": "file:../roku-log",
+    "mc": "file:../maestro-roku-core",
+    "mv": "file:../maestro-roku-view"
   },
   "devDependencies": {
-    "brighterscript": "^0.15.0",
-    "ropm": "^0.5.0"
+    "brighterscript": "file:/home/george/hope/open-source/vsc/brighterscript",
+    "ropm": "file:/home/george/hope/open-source/vsc/ropm"
   },
   "repository": {
     "type": "git",

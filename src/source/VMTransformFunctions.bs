@@ -1,0 +1,15 @@
+import "pkg:/source/roku_modules/log/LogMixin.brs"
+import "pkg:/source/roku_modules/mc/Utils.brs"
+
+namespace Transform
+
+  function transform_invertBoolean(value)
+    if mc_isBoolean(value)
+      return not value
+    else
+      m.logError("binding was marked as inverse boolean; but value was not boolean")
+      return false
+    end if
+  end function
+
+end namespace
