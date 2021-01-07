@@ -8,11 +8,13 @@
   "autoImportComponentScript": true,
   "createPackage": false,
   "stagingFolderPath": "dist",
+  "emitDefinitions": true,
   "diagnosticFilters": [
     {
       "src": "**/roku_modules/**/*.*",
       "codes": [
-        1107
+        1107,
+        1009
       ]
     }
   ]
