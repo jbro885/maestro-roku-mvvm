@@ -42,7 +42,7 @@ class BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   public override function initialize()
     super.initialize()
-    toggleNotifications(true)
+    m.toggleNotifications(true)
   end function
 
   public function destroy() as void
@@ -197,7 +197,7 @@ class BaseObservable
   '  * @param {boolean} isFiringOnce - if true, then the binding is removed as soon as as it is invoked
   '  */
   public function bindField(fieldName, targetNode, targetField, fireOnSet = false, transformFunc = invalid, isFiringOnce = false)
-    properties = createNodeBindingProperties(fieldName, targetNode, targetField, fireOnSet, transformFunc, isFiringOnce)
+    properties = m.createNodeBindingProperties(fieldName, targetNode, targetField, fireOnSet, transformFunc, isFiringOnce)
 
     bindings = m.bindings[fieldName]
 
