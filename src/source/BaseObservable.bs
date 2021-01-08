@@ -6,24 +6,23 @@ import "pkg:/source/roku_modules/mc/Tasks.brs"
 '  * @module BaseObservable
 '  * @description Base class of all observables
 '  */
+' /**
+'  * @member BaseObservable
+'  * @memberof module:BaseObservable
+'  * @instance 
+'  * @function
+'  * @description creates a BaseObserver instance, which you can extend,
+'  *              note - that for correct function you must use the BaseObservableMixin methods to interact with this class for registering, observing and binding
+'  */
 class BaseObservable
 
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   '++ Base observer class
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  '@Constructor
-  ' /**
-  '  * @member BaseObservable
-  '  * @memberof module:BaseObservable
-  '  * @instance 
-  '  * @function
-  '  * @description creates a BaseObserver instance, which you can extend,
-  '  *              note - that for correct function you must use the BaseObservableMixin methods to interact with this class for registering, observing and binding
-  '  */
   public function new()
   end function
-
+  '@Constructor
   public observers = {}
   public pendingObservers = {}
   public bindings = {}
@@ -40,8 +39,7 @@ class BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   '++ lifecycle
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  public override function initialize()
-    super.initialize()
+  public function initialize()
     m.toggleNotifications(true)
   end function
 
@@ -88,7 +86,7 @@ class BaseObservable
   '  * @returns {boolean} true if succesful
   '  */
   public function setField(fieldName, value, originKey = invalid, notify = true) as boolean
-    if not mc_isString(fieldName) or fieldName.trim() = ""
+    if not mc.isString(fieldName) or fieldName.trim() = ""
       m.logError("Tried to setField with illegal field name")
       return false
     end if
@@ -126,7 +124,7 @@ class BaseObservable
     if observers = invalid
       observers = {}
     end if
-    observers[mc_getFunctionName(func)] = properties
+    observers[mc.getFunctionName(func)] = properties
 
     m.observers[fieldName] = observers
 
@@ -140,7 +138,7 @@ class BaseObservable
     if observers = invalid
       observers = {}
     end if
-    observers.delete(mc_getFunctionName(functionName))
+    observers.delete(mc.getFunctionName(functionName))
 
     if observers.count() = 0
       m.observers.delete(fieldName)
@@ -161,7 +159,7 @@ class BaseObservable
     end if
 
     value = m[fieldName]
-    if mc_isUndefined(value)
+    if mc.isUndefined(value)
       m.logError("Tried notify about uninitialized value! interpreting as invalid")
       value = invalid
     end if
@@ -274,7 +272,7 @@ class BaseObservable
     end if
 
     value = m[fieldName]
-    if mc_isUndefined(value)
+    if mc.isUndefined(value)
       m.logError("Tried notify about uninitialized value! interpreting as invalid")
       value = invalid
     end if

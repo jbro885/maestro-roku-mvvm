@@ -25,7 +25,7 @@ class BaseViewModel extends BaseObservable
   public function new(name = "BaseViewModel")
     super()
     m.name = name
-    Log.registerLogger(name, true, m)
+    log.registerLogger(name, true, m)
   end function
 
   public state = "none"
@@ -83,25 +83,25 @@ class BaseViewModel extends BaseObservable
   public function onKeyEvent(key as string, press as boolean) as boolean
     result = false
     if press
-      if mc_isFunction(m.isAnyKeyPressLocked) and m.isAnyKeyPressLocked()
+      if mc.isFunction(m.isAnyKeyPressLocked) and m.isAnyKeyPressLocked()
         return true
       end if
 
-      if key = "down" and mc_isFunction(m.onKeyPressDown)
+      if key = "down" and mc.isFunction(m.onKeyPressDown)
         result = m.onKeyPressDown()
-      else if key = "up" and mc_isFunction(m.onKeyPressUp)
+      else if key = "up" and mc.isFunction(m.onKeyPressUp)
         result = m.onKeyPressUp()
-      else if key = "left" and mc_isFunction(m.onKeyPressLeft)
+      else if key = "left" and mc.isFunction(m.onKeyPressLeft)
         result = m.onKeyPressLeft()
-      else if key = "right" and mc_isFunction(m.onKeyPressRight)
+      else if key = "right" and mc.isFunction(m.onKeyPressRight)
         result = m.onKeyPressRight()
-      else if key = "OK" and mc_isFunction(m.onKeyPressOK)
+      else if key = "OK" and mc.isFunction(m.onKeyPressOK)
         result = m.onKeyPressOK()
-      else if key = "back" and mc_isFunction(m.onKeyPressBack)
+      else if key = "back" and mc.isFunction(m.onKeyPressBack)
         result = m.onKeyPressBack()
-      else if key = "options" and mc_isFunction(m.onKeyPressOption)
+      else if key = "options" and mc.isFunction(m.onKeyPressOption)
         result = m.onKeyPressOption()
-      else if key = "play" and mc_isFunction(m.onKeyPressPlay)
+      else if key = "play" and mc.isFunction(m.onKeyPressPlay)
         result = m.onKeyPressPlay()
       end if
     else
@@ -112,7 +112,7 @@ class BaseViewModel extends BaseObservable
       result = false
     end if
 
-    if result = false and mc_isFunction(m.isCapturingAnyKeyPress)
+    if result = false and mc.isFunction(m.isCapturingAnyKeyPress)
       result = m.isCapturingAnyKeyPress(key, press)
     end if
 
@@ -124,11 +124,11 @@ class BaseViewModel extends BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   function getTopField(fieldName)
-    return MC.Utils.getMField("top")[fieldName]
+    return mc.utils.getMField("top")[fieldName]
   end function
 
   function getMField(fieldName)
-    return MC.Utils.getMField(fieldName)
+    return mc.utils.getMField(fieldName)
   end function
 
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -147,7 +147,7 @@ class BaseViewModel extends BaseObservable
   '  */
   public function push(view)
 
-    if mc_isString(view)
+    if mc.isString(view)
       view = MVMM.findViewWithId(view)
     end if
     'bs:disable-next-line
@@ -184,19 +184,19 @@ class BaseViewModel extends BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   function observeNodeField(node, fieldName, callback, sendMode = "value", once = false)
-    mc_Tasks_observeNodeField(node, fieldName, callback, sendMode, once, m)
+    mc.Tasks_observeNodeField(node, fieldName, callback, sendMode, once, m)
   end function
 
   function waitAFrame(callback, duration = 0.01, sendMode = "none")
-    mc_Tasks_waitAFrame(callback, duration, sendMode, m)
+    mc.Tasks_waitAFrame(callback, duration, sendMode, m)
   end function
 
   function cancelWaitTimer(timer)
-    mc_Tasks_cancelWaitTimer(timer)
+    mc.Tasks_cancelWaitTimer(timer)
   end function
 
   function createTask(taskType, fields, callback = invalid, isRunning = true, fieldName = "output", sendMode = "result")
-    mc_Tasks_createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
+    mc.Tasks_createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
   end function
 
 end class
@@ -214,7 +214,7 @@ function onFocusIdChange(focusId)
     if control <> invalid
       m.logVerbose("setting focus on ", control)
       'bs:disable-next-line
-      mv_setFocus(control)
+      mv.setFocus(control)
     else
       m.logError("the focus map contained a focusId that did not exist!", focusId)
     end if
@@ -224,12 +224,12 @@ end function
 
 
 function initializeBindings()
-  if mc_isFunction(m_initBindings)
+  if mc.isFunction(m_initBindings)
     'bs:disable-next-line
     m_initBindings()
   end if
 
-  if mc_isFunction(M_initStaticBindings)
+  if mc.isFunction(M_initStaticBindings)
     'bs:disable-next-line
     M_initStaticBindings()
   end if
