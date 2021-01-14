@@ -25,7 +25,7 @@ class BaseViewModel extends BaseObservable
   public function new(name = "BaseViewModel")
     super()
     m.name = name
-    log.registerLogger(name, true, m)
+    log.registerLogger(name, m)
   end function
 
   public state = "none"
