@@ -184,19 +184,23 @@ class BaseViewModel extends BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   function observeNodeField(node, fieldName, callback, sendMode = "value", once = false)
-    mc.Tasks_observeNodeField(node, fieldName, callback, sendMode, once, m)
+    mc.tasks.observeNodeField(node, fieldName, callback, sendMode, once, m)
   end function
 
   function waitAFrame(callback, duration = 0.01, sendMode = "none")
-    mc.Tasks_waitAFrame(callback, duration, sendMode, m)
+    mc.tasks.waitAFrame(callback, duration, sendMode, m)
   end function
 
   function cancelWaitTimer(timer)
-    mc.Tasks_cancelWaitTimer(timer)
+    mc.tasks.cancelWaitTimer(timer)
   end function
 
   function createTask(taskType, fields, callback = invalid, isRunning = true, fieldName = "output", sendMode = "result")
-    mc.Tasks_createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
+    mc.tasks.createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
+  end function
+
+  function cancelTask(task)
+    mc.tasks.cancelTask(task)
   end function
 
 end class

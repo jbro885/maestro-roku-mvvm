@@ -14,7 +14,14 @@
       "src": "**/roku_modules/**/*.*",
       "codes": [
         1107,
-        1009
+        1009,
+        1067
+      ]
+    },
+    {
+      "src": "**/WhiteList.xml",
+      "codes": [
+        1067
       ]
     }
   ]

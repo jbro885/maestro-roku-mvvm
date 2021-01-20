@@ -22,7 +22,8 @@ class BaseObservable
 
   public function new()
   end function
-  '@Constructor
+
+  public isBindingNotificationEnabled = false
   public observers = {}
   public pendingObservers = {}
   public bindings = {}
@@ -33,7 +34,7 @@ class BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   public function getNodeFieldBindingKey(node, field, targetField)
-    return m.contextId + "_" + node.id + "_" + field + "_" + targetField
+    return "vm_" + node.id + "_" + field + "_" + targetField
   end function
 
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -88,6 +89,11 @@ class BaseObservable
   public function setField(fieldName, value, originKey = invalid, notify = true) as boolean
     if not mc.isString(fieldName) or fieldName.trim() = ""
       m.logError("Tried to setField with illegal field name")
+      return false
+    end if
+
+    if not m.doesExist(fieldName)
+      m.logError("called setField on unknown field '", fieldName, "'")
       return false
     end if
 
@@ -199,6 +205,10 @@ class BaseObservable
 
     bindings = m.bindings[fieldName]
 
+    if bindings = invalid
+      bindings = {}
+    end if
+    
     key = m.getNodeFieldBindingKey(targetNode, fieldName, targetField)
 
     if bindings.doesExist(key)
