@@ -175,7 +175,7 @@ class BaseObservable
         observer = observers[funcName]
         observerCallback(observer[4], value, observer[1], observer[3])
         if observer[2]
-          m.unobserveField(fieldName, funcName)
+          m.unobserveFieldScoped(fieldName, funcName)
         end if
       end for
     else
