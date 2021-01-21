@@ -201,16 +201,14 @@ class BaseObservable
   '  * @param {boolean} isFiringOnce - if true, then the binding is removed as soon as as it is invoked
   '  */
   public function bindField(fieldName, targetNode, targetField, fireOnSet = false, transformFunc = invalid, isFiringOnce = false)
-    properties = m.createNodeBindingProperties(fieldName, targetNode, targetField, fireOnSet, transformFunc, isFiringOnce)
-
     bindings = m.bindings[fieldName]
-
+    
     if bindings = invalid
       bindings = {}
     end if
     
     key = m.getNodeFieldBindingKey(targetNode, fieldName, targetField)
-
+    
     if bindings.doesExist(key)
       m.logWarn("Binding already existed for key")
       binding = bindings[key]
@@ -222,6 +220,10 @@ class BaseObservable
         return false
       end if
     end if
+    
+    bindings[key] = m.createNodeBindingProperties(fieldName, targetNode, targetField, fireOnSet, transformFunc, isFiringOnce)
+
+    m.bindings[fieldName] = bindings
 
     if fireOnSet
       m.notifyBinding(fieldName, key)
@@ -275,35 +277,37 @@ class BaseObservable
   '  * @param {string} excludeKey - if present, will not update this node field - to stop cyclical bindings
   '  */
   public function notifyBinding(fieldName, specificKey = invalid, excludeKey = invalid) as boolean
-    bindings = m.bindings[fieldName]
-    if bindings = invalid
-      ' logVerbose("No bindings for field ", fieldName)
-      return false
-    end if
+  bindings = m.bindings[fieldName]
+  if bindings = invalid
+    m.pendingBindings[fieldName] = 1
+    return false
+  end if
+  
+  value = m[fieldName]
+  if mc.isUndefined(value)
+    m.logError("Tried notify about uninitialized value! interpreting as invalid")
+    value = invalid
+  end if
+  
+  if m.isBindingNotificationEnabled
+    for each key in bindings
+      if (specificKey = invalid or specificKey = key) and (excludeKey = invalid or excludeKey <> key)
+        binding = bindings[key]
+        node = binding[1]
+        if binding[4] <> invalid
+          bindingValue = binding[4](value)
+        else
+          bindingValue = value
+        end if
 
-    value = m[fieldName]
-    if mc.isUndefined(value)
-      m.logError("Tried notify about uninitialized value! interpreting as invalid")
-      value = invalid
-    end if
-
-    if m.isBindingNotificationEnabled
-      for each key in bindings
-        if (specificKey = invalid or specificKey = key) and (excludeKey = invalid or excludeKey <> key)
-          binding = bindings[key]
-          node = binding[1]
-          if binding[4] <> invalid
-            bindingValue = binding[4](value)
-          else
-            bindingValue = value
-          end if
-          if node.doesExist(binding[2])
-            node[binding[2]] = bindingValue
-          else 
-            'attempt to call func
-            m.logDebug("target field did not exist for binding ", key, "using callfunc")
-            node.callFunc(binding[2], bindingValue)
-          end if
+        
+        if node.doesExist(binding[2])
+          node[binding[2]] = bindingValue
+        else 
+          'attempt to call func
+          m.logDebug("target field did not exist for binding ", key, "using callfunc")
+          node.callFunc(binding[2], bindingValue)
+        end if
           if binding[5]
             m.unbindNodeField(node, binding[2], binding[0])
           end if

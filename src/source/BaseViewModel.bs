@@ -39,6 +39,7 @@ class BaseViewModel extends BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   override function initialize()
+    super.initialize()
     m.logMethod("initialize", m.name)
     m.state = "initialized"
   end function
