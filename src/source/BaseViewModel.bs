@@ -125,11 +125,11 @@ class BaseViewModel extends BaseObservable
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   function getTopField(fieldName)
-    return mc.utils.getMField("top")[fieldName]
+    return mc.getMField("top")[fieldName]
   end function
 
   function getMField(fieldName)
-    return mc.utils.getMField(fieldName)
+    return mc.getMField(fieldName)
   end function
 
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -149,7 +149,7 @@ class BaseViewModel extends BaseObservable
   public function push(view)
 
     if mc.isString(view)
-      view = MVMM.findViewWithId(view)
+      view = m.getViewById(view)
     end if
     'bs:disable-next-line
     push(view)
@@ -188,6 +188,11 @@ class BaseViewModel extends BaseObservable
     mc.tasks.observeNodeField(node, fieldName, callback, sendMode, once, m)
   end function
 
+  function unobserveNodeField(node, fieldName, callback = invalid)
+    'TODO - we need to be a bitmore clever about observing things, as they might be going to various callbacks
+    mc.tasks.cleanNodeObserver(node, fieldName)
+  end function
+
   function waitAFrame(callback, duration = 0.01, sendMode = "none")
     mc.tasks.waitAFrame(callback, duration, sendMode, m)
   end function
@@ -196,8 +201,8 @@ class BaseViewModel extends BaseObservable
     mc.tasks.cancelWaitTimer(timer)
   end function
 
-  function createTask(taskType, fields, callback = invalid, isRunning = true, fieldName = "output", sendMode = "result")
-    mc.tasks.createTask(taskType, fields, callback, isRunning, fieldName, m, sendMode)
+  function createTask(taskType, fields, callback = invalid, isRunning = true, sendMode = "result", fieldName = "output")
+    mc.tasks.createTask(taskType, fields, callback, isRunning, m, sendMode, fieldName)
   end function
 
   function cancelTask(task)

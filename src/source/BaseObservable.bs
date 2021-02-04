@@ -9,7 +9,7 @@ import "pkg:/source/roku_modules/mc/Tasks.brs"
 ' /**
 '  * @member BaseObservable
 '  * @memberof module:BaseObservable
-'  * @instance 
+'  * @instance
 '  * @function
 '  * @description creates a BaseObserver instance, which you can extend,
 '  *              note - that for correct function you must use the BaseObservableMixin methods to interact with this class for registering, observing and binding
@@ -78,7 +78,7 @@ class BaseObservable
   ' /**
   '  * @member setField
   '  * @memberof module:BaseObservable
-  '  * @instance 
+  '  * @instance
   '  * @function
   '  * @description sets the field on this object, and notifies all observers
   '  * @param {string} fieldName - name of field to set
@@ -114,7 +114,7 @@ class BaseObservable
   ' /**
   '  * @member observeField
   '  * @memberof module:BaseObservable
-  '  * @instance 
+  '  * @instance
   '  * @description observes a field on this observable; will call func, when the field is changed, via SetField
   '  * @param {boolean} fireOnSet - if true, field will be set on binding call
   '  * @param {function} transformFunc - pointer to function to call to modify this value when executing the binding
@@ -122,7 +122,7 @@ class BaseObservable
   '  * @param {string} sendMode - (none|value|node|both)
   '  * @param {function} func - pointer to function to call to call back with
   '  */
-  public function observeField(fieldName, func, fireOnSet = false, transformFunc = invalid, once = false, mode = "value") 
+  public function observeField(fieldName, func, fireOnSet = false, transformFunc = invalid, once = false, mode = "value")
 
     properties = m.createBindingProperties(fireOnSet, transformFunc, once, mode, func)
 
@@ -190,7 +190,7 @@ class BaseObservable
   ' /**
   '  * @member bindField
   '  * @memberof module:BaseObservable
-  '  * @instance 
+  '  * @instance
   '  * @function
   '  * @description binds a field on this observer to the target node's field
   '  * @param {string} fieldName - field on this observer to observe
@@ -202,13 +202,13 @@ class BaseObservable
   '  */
   public function bindField(fieldName, targetNode, targetField, fireOnSet = false, transformFunc = invalid, isFiringOnce = false)
     bindings = m.bindings[fieldName]
-    
+
     if bindings = invalid
       bindings = {}
     end if
-    
+
     key = m.getNodeFieldBindingKey(targetNode, fieldName, targetField)
-    
+
     if bindings.doesExist(key)
       m.logWarn("Binding already existed for key")
       binding = bindings[key]
@@ -220,7 +220,7 @@ class BaseObservable
         return false
       end if
     end if
-    
+
     bindings[key] = m.createNodeBindingProperties(fieldName, targetNode, targetField, fireOnSet, transformFunc, isFiringOnce)
 
     m.bindings[fieldName] = bindings
@@ -235,7 +235,7 @@ class BaseObservable
   ' /**
   '  * @member unbindField
   '  * @memberof module:BaseObservable
-  '  * @instance 
+  '  * @instance
   '  * @function
   '  * @description binds a field on this observer to the target node's field
   '  * @param {string} fieldName - field on this observer to observe
@@ -269,7 +269,7 @@ class BaseObservable
   ' /**
   '  * @member notifyBinding
   '  * @memberof module:BaseObservable
-  '  * @instance 
+  '  * @instance
   '  * @function
   '  * @description Will notify observers of fieldName, of it's value
   '  * @param {string} fieldName - field to update
@@ -282,13 +282,13 @@ class BaseObservable
     m.pendingBindings[fieldName] = 1
     return false
   end if
-  
+
   value = m[fieldName]
   if mc.isUndefined(value)
     m.logError("Tried notify about uninitialized value! interpreting as invalid")
     value = invalid
   end if
-  
+
   if m.isBindingNotificationEnabled
     for each key in bindings
       if (specificKey = invalid or specificKey = key) and (excludeKey = invalid or excludeKey <> key)
@@ -300,10 +300,10 @@ class BaseObservable
           bindingValue = value
         end if
 
-        
+
         if node.doesExist(binding[2])
           node[binding[2]] = bindingValue
-        else 
+        else
           'attempt to call func
           m.logDebug("target field did not exist for binding ", key, "using callfunc")
           node.callFunc(binding[2], bindingValue)
@@ -326,7 +326,7 @@ class BaseObservable
   ' /**
   '  * @member createBindingProperties
   '  * @memberof module:BaseObservable
-  '  * 
+  '  *
   '  * @function
   '  * @description creates properties for using in bindings
   '  * @param {boolean} fireOnSet - if true, field will be set on binding call

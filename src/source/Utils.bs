@@ -1,0 +1,8 @@
+import "pkg:/source/roku_modules/mc/Tasks.brs"
+
+namespace utils
+  function cleanBindings()
+    mc.tasks.cleanScope()
+  end function
+
+end namespace
