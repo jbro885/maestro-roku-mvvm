@@ -33,6 +33,8 @@ class BaseViewModel extends BaseObservable
   public name = ""
   public isFocused = false
   public isShown = false
+  private isLongPressStarted = false
+  private longPressKey = ""
 
   '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   '++ public API
@@ -87,23 +89,8 @@ class BaseViewModel extends BaseObservable
       if mc.isFunction(m.isAnyKeyPressLocked) and m.isAnyKeyPressLocked()
         return true
       end if
-
-      if key = "down" and mc.isFunction(m.onKeyPressDown)
-        result = m.onKeyPressDown()
-      else if key = "up" and mc.isFunction(m.onKeyPressUp)
-        result = m.onKeyPressUp()
-      else if key = "left" and mc.isFunction(m.onKeyPressLeft)
-        result = m.onKeyPressLeft()
-      else if key = "right" and mc.isFunction(m.onKeyPressRight)
-        result = m.onKeyPressRight()
-      else if key = "OK" and mc.isFunction(m.onKeyPressOK)
-        result = m.onKeyPressOK()
-      else if key = "back" and mc.isFunction(m.onKeyPressBack)
-        result = m.onKeyPressBack()
-      else if key = "options" and mc.isFunction(m.onKeyPressOption)
-        result = m.onKeyPressOption()
-      else if key = "play" and mc.isFunction(m.onKeyPressPlay)
-        result = m.onKeyPressPlay()
+      if mc.isFunction(m[`onKeyPress${key}`])
+        result = m[`onKeyPress${key}`]
       end if
     else
       result = false
@@ -111,6 +98,19 @@ class BaseViewModel extends BaseObservable
 
     if (result = invalid)
       result = false
+    end if
+
+    if result and press
+      'bs:disable-next-line
+      if mc.isFunction(m.getLongPressIntervalForKey) then longPressInterval = m.getLongPressIntervalForKey(key) else longPressInterval = 0
+      if longPressInterval > 0
+        m.logInfo("entering long press for key ", key)
+        m.longPressKey = key
+        m.toggleLongPressTimer(longPressInterval)
+      end if
+    else
+      'bs:disable-next-line
+      result = mc.isFunction(isCapturingAnyKeyPress) and isCapturingAnyKeyPress(key, press)
     end if
 
     if result = false and mc.isFunction(m.isCapturingAnyKeyPress)
@@ -202,13 +202,51 @@ class BaseViewModel extends BaseObservable
   end function
 
   function createTask(taskType, fields, callback = invalid, isRunning = true, sendMode = "result", fieldName = "output")
-    mc.tasks.createTask(taskType, fields, callback, isRunning, m, sendMode, fieldName)
+    mc.tasks.createTask(taskType, fields, callback, isRunning, sendMode, m, fieldName)
   end function
 
   function cancelTask(task)
     mc.tasks.cancelTask(task)
   end function
 
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  '++ long press support
+  '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  function toggleLongPressTimer(interval)
+    if interval > 0
+      m.waitAFrame(m.onLongPressTimerFire, interval)
+    else if m.longPressKey <> invalid and m.longPressKey <> ""
+      m.logInfo("finishing longPress on key ", key)
+      if m.isLongPressStarted and mc.isFunction(onLongPressFinish)
+        'bs:disable-next-line
+        onLongPressFinish(m.longPressKey)
+      end if
+      m.longPressKey = ""
+      m.isLongPressStarted = false
+    end if
+  end function
+
+  function onLongPressTimerFire()
+    if m.isLongPressStarted
+      'bs:disable-next-line
+      if mc.isFunction(m.onLongPressUpdate) and not m.onLongPressUpdate(m.longPressKey)
+        m.logInfo("long press was cancelled by the onLongPressUpdate call")
+        if mc.isFunction(toggleLongPressTimer)
+          m.toggleLongPressTimer(0)
+        end if
+      end if
+    else
+      'bs:disable-next-line
+      if mc.isFunction(m.onLongPressStart) and not m.onLongPressStart(m.longPressKey)
+        m.logInfo("long press was rejected by onLongPressStart call")
+        m.toggleLongPressTimer(0)
+      else
+        m.logInfo("long press is accepted : starting for key ", m.longPressKey)
+        m.isLongPressStarted = true
+      end if
+    end if
+  end function
 end class
 
 '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
