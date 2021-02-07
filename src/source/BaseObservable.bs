@@ -88,17 +88,17 @@ class BaseObservable
   '  */
   public function setField(fieldName, value, originKey = invalid, notify = true) as boolean
     if not mc.isString(fieldName) or fieldName.trim() = ""
-      m.logError("Tried to setField with illegal field name")
+      m.logError("Tried to setField with illegal field name class", m.__className)
       return false
     end if
 
     if not m.doesExist(fieldName)
-      m.logError("called setField on unknown field '", fieldName, "'")
+      m.logError("called setField on unknown field '", fieldName, "'", "class", m.__className)
       return false
     end if
 
     if type(value) = "<uninitialized>"
-      m.logError("Tried to set a value to uninitialized! interpreting as invalid")
+      m.logError("Tried to set a value to uninitialized! interpreting as invalid class", m.__className)
       value = invalid
     end if
 
@@ -252,7 +252,7 @@ class BaseObservable
     key = m.getNodeFieldBindingKey(targetNode, fieldName, targetField)
 
     if not bindings.doesExist(key)
-      m.logError("tried to unbind unknown field/node/target field with id of", key)
+      m.logError("tried to unbind unknown field/node/target field with id of", key, "class", m.__className)
     end if
 
     bindings.delete(key)
