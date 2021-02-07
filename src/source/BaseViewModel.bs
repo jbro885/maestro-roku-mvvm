@@ -90,7 +90,7 @@ class BaseViewModel extends BaseObservable
         return true
       end if
       if mc.isFunction(m[`onKeyPress${key}`])
-        result = m[`onKeyPress${key}`]
+        result = m[`onKeyPress${key}`]()
       end if
     else
       result = false
@@ -101,6 +101,7 @@ class BaseViewModel extends BaseObservable
     end if
 
     if result and press
+
       'bs:disable-next-line
       if mc.isFunction(m.getLongPressIntervalForKey) then longPressInterval = m.getLongPressIntervalForKey(key) else longPressInterval = 0
       if longPressInterval > 0
