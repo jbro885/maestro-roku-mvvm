@@ -203,7 +203,7 @@ class BaseViewModel extends BaseObservable
   end function
 
   function createTask(taskType, fields, callback = invalid, isRunning = true, sendMode = "result", fieldName = "output")
-    mc.tasks.createTask(taskType, fields, callback, isRunning, sendMode, m, fieldName)
+    return mc.tasks.createTask(taskType, fields, callback, isRunning, sendMode, m, fieldName)
   end function
 
   function cancelTask(task)
